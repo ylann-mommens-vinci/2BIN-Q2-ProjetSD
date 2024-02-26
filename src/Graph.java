@@ -1,13 +1,26 @@
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
 
 public class Graph {
 
-  File cities;
-  File roads;
+  private Map<String, City> idToCity = new HashMap<>();
 
   public Graph(File cities, File roads) {
-    this.cities=cities;
-    this.roads=roads;
+    try(Scanner sc = new Scanner(cities)) {
+      while(sc.hasNextLine()) {
+        String[] line = sc.nextLine().split(",");
+        idToCity.put(line[0], new City(line[0], line[1], Double.parseDouble(line[2]), Double.parseDouble(line[3])));
+      }
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }
+
+
+
   }
 
   /* Algorithme BFS
