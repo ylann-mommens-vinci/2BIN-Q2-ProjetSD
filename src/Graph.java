@@ -4,9 +4,10 @@ import java.io.FileReader;
 import java.util.*;
 
 public class Graph {
+
   private final Map<String, City> citiesByName;
   private final Map<Integer, City> citiesById;
-  private final Map<City, List<City>> adjacencyList;
+  private final Map<City, Set<Road>> adjacencyList;
 
   public Graph(File citiesFile, File roadsFile) {
     citiesByName = new HashMap<>();
@@ -45,8 +46,9 @@ public class Graph {
         City city2 = citiesById.get(cityId2);
 
         if (city1 != null && city2 != null) {
-          adjacencyList.computeIfAbsent(city1, k -> new LinkedList<>()).add(city2);
-          adjacencyList.computeIfAbsent(city2, k -> new LinkedList<>()).add(city1);
+          Road road = new Road(city1, city2);
+          adjacencyList.computeIfAbsent(city1, k -> new HashSet<>()).add(road);
+          adjacencyList.computeIfAbsent(city2, k -> new HashSet<>()).add(new Road(city2, city1));
         }
       }
     } catch (Exception e) {
@@ -74,15 +76,18 @@ public class Graph {
         printPath(predecessors, endCity);
         return;
       }
-      for (City neighbor : adjacencyList.getOrDefault(current, Collections.emptyList())) {
+      for (Road road : adjacencyList.getOrDefault(current, Collections.emptySet())) {
+        City neighbor = road.getDestination();
         if (!visited.contains(neighbor)) {
           visited.add(neighbor);
           predecessors.put(neighbor, current);
           queue.add(neighbor);
         }
       }
+
     }
-    throw new RuntimeException("Il est impossible de trouver un itinéraire entre " + start + " et " + end);
+    throw new RuntimeException(
+        "Il est impossible de trouver un itinéraire entre " + start + " et " + end);
   }
 
   public void calculerItineraireMinimisantKm(String start, String end) {
@@ -94,28 +99,30 @@ public class Graph {
     City endCity = citiesByName.get(end);
     Map<City, Double> distances = new HashMap<>();
     Map<City, City> predecessors = new HashMap<>();
-    PriorityQueue<City> queue = new PriorityQueue<>(Comparator.comparing(distances::get));
+    TreeMap<City, Double> treeMap = new TreeMap<>(Comparator.comparing(distances::get));
     citiesByName.values().forEach(city -> distances.put(city, Double.MAX_VALUE));
     distances.put(startCity, 0.0);
-    queue.add(startCity);
+    treeMap.put(startCity, 0.0);
 
-    while (!queue.isEmpty()) {
-      City current = queue.poll();
+    while (!treeMap.isEmpty()) {
+      City current = treeMap.pollFirstEntry().getKey();
       if (current.equals(endCity)) {
         printPath(predecessors, endCity);
         return;
       }
       double currentDistance = distances.get(current);
-      for (City neighbor : adjacencyList.getOrDefault(current, Collections.emptyList())) {
+      for (Road road : adjacencyList.getOrDefault(current, Collections.emptySet())) {
+        City neighbor = road.getDestination();
         double distance = calculateDistance(current, neighbor) + currentDistance;
         if (distance < distances.getOrDefault(neighbor, Double.MAX_VALUE)) {
           distances.put(neighbor, distance);
           predecessors.put(neighbor, current);
-          queue.add(neighbor);
+          treeMap.put(neighbor, distance);
         }
       }
     }
-    throw new RuntimeException("Il est impossible de trouver un itinéraire entre " + start + " et " + end);
+    throw new RuntimeException(
+        "Il est impossible de trouver un itinéraire entre " + start + " et " + end);
   }
 
   private void printPath(Map<City, City> predecessors, City endCity) {
