@@ -86,8 +86,7 @@ public class Graph {
       }
 
     }
-    throw new RuntimeException(
-        "Il est impossible de trouver un itinéraire entre " + start + " et " + end);
+    System.out.println("Il est impossible de trouver un itinéraire entre " + start + " et " + end);
   }
 
   public void calculerItineraireMinimisantKm(String start, String end) {
@@ -121,8 +120,7 @@ public class Graph {
         }
       }
     }
-    throw new RuntimeException(
-        "Il est impossible de trouver un itinéraire entre " + start + " et " + end);
+    System.out.println("Il est impossible de trouver un itinéraire entre " + start + " et " + end);
   }
 
   private void printPath(Map<City, City> predecessors, City endCity) {
