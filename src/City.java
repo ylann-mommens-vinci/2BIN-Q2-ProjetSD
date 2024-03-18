@@ -1,18 +1,18 @@
 public class City {
 
-  private final String id;
+  private final int id;
   private final String name;
   private final double latitude;
   private final double longitude;
 
-  public City(String id, String name, double latitude, double longitude) {
+  public City(int id, String name, double latitude, double longitude) {
     this.id = id;
     this.name = name;
     this.latitude = latitude;
     this.longitude = longitude;
   }
 
-  public String getId() {
+  public int getId() {
     return id;
   }
 
