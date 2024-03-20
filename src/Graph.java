@@ -124,15 +124,33 @@ public class Graph {
   }
 
   private void printPath(Map<City, City> predecessors, City endCity) {
-    LinkedList<String> path = new LinkedList<>();
-    for (City at = endCity; at != null; at = predecessors.get(at)) {
-      path.addFirst(at.getName());
+    LinkedList<Road> path = new LinkedList<>();
+    double totalDistance = 0.0;
+
+    for (City at = endCity; predecessors.get(at) != null; at = predecessors.get(at)) {
+      City prevCity = predecessors.get(at);
+      Set<Road> roads = adjacencyList.get(prevCity);
+      for (Road road : roads) {
+        if (road.getDestination().equals(at)) {
+          path.addFirst(road);
+          totalDistance += calculateDistance(road.getSource(), road.getDestination());
+          break;
+        }
+      }
     }
-    System.out.println(String.join(" -> ", path));
+
+    System.out.println("Itinéraire de " + path.getFirst().getSource().getName() +
+        " à " + endCity.getName() + ": " + path.size() + " routes et " +
+        totalDistance + " km");
+
+    for (Road road : path) {
+      System.out.println(road.getSource().getName() + " -> " +
+          road.getDestination().getName() + " (" + calculateDistance(road.getSource(), road.getDestination()) + " km)");
+    }
   }
 
   private double calculateDistance(City from, City to) {
-    return Util.distance(from.getLatitude(), from.getLongitude(), to.getLatitude(),
-        to.getLongitude());
+    return Util.distance(from.getLatitude(), from.getLongitude(), to.getLatitude(), to.getLongitude());
   }
+
 }
